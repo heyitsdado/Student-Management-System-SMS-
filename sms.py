@@ -16,7 +16,7 @@ def clock():
     datetimeLabel.config(text = f'    Date: {date}\nTime:{ctime}')
     datetimeLabel.after(1000,clock)
 
-def displaystudent():
+def displaydatabase():
 
     q='select *from students'
     conncursor.execute(q)
@@ -25,6 +25,80 @@ def displaystudent():
     for data in fetched:
         studentTable.insert('', END, value=data)
 
+def displayevents():
+    query='select *from events'
+    mycursor.execute(query)
+    fetched=mycursor.fetchall()
+    calen.delete(*calen.get_children())
+    for data in fetched:
+        calen.insert('', END, value=data)
+
+def displaystudent():
+    def update_input():
+        q='update students set name=%s,mobile=%s,email=%s,gender=%s,dob=%s,emergency_contact=%s,emergency_number=%s'
+        conncursor.execute(q,(studentnameEntry.get(),studentPhoneEntry.get(),studentEmailEntry.get(),sGenderEntry.get(),
+                              studentDoBEntry.get(),EmerContactEntry.get(),EmernumEntry.get()))
+        conn.commit()
+        messagebox.showinfo('Success','Record Successfully Updated')
+        updatestudentwindow.destroy()
+        displaystudent()
+
+    updatestudentwindow=Toplevel()
+    updatestudentwindow.title('Student Record')
+    updatestudentwindow.resizable(False,False)
+    updatestudentwindow.grab_set()
+
+    studentidLabel=Label(updatestudentwindow, text='Student ID', font=('times new roman', 17))
+    studentidLabel.grid(row=0,column=0,sticky=W,padx=20,pady=20)
+    studentidEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    studentidEntry.grid(row=0,column=1,sticky=W,padx=20,pady=20)
+
+    studentnameLabel=Label(updatestudentwindow, text='Name', font=('times new roman', 17))
+    studentnameLabel.grid(row=1,column=0,sticky=W,padx=20,pady=20)
+    studentnameEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    studentnameEntry.grid(row=1,column=1,sticky=W,padx=20,pady=20)
+
+    studentPhoneLabel=Label(updatestudentwindow, text='Mobile', font=('times new roman', 17))
+    studentPhoneLabel.grid(row=2,column=0,sticky=W,padx=20,pady=20)
+    studentPhoneEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    studentPhoneEntry.grid(row=2,column=1,sticky=W,padx=20,pady=20)
+
+    studentEmailLabel=Label(updatestudentwindow, text='Email', font=('times new roman', 17))
+    studentEmailLabel.grid(row=3,column=0,sticky=W,padx=20,pady=20)
+    studentEmailEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    studentEmailEntry.grid(row=3,column=1,sticky=W,padx=20,pady=20)
+
+    sGenderLabel=Label(updatestudentwindow, text='Gender', font=('times new roman', 17))
+    sGenderLabel.grid(row=4,column=0,sticky=W,padx=20,pady=20)
+    sGenderEntry = Entry(updatestudentwindow, bd=7,font=('times new roman',17))
+    sGenderEntry.grid(row=4,column=1,sticky=W,padx=20,pady=20)
+
+    studentDoBLabel=Label(updatestudentwindow, text='DOB', font=('times new roman', 17))
+    studentDoBLabel.grid(row=5,column=0,sticky=W,padx=20,pady=20)
+    studentDoBEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    studentDoBEntry.grid(row=5,column=1,sticky=W,padx=20,pady=20)
+
+    EmerContactLabel=Label(updatestudentwindow, text='Emergency Contact', font=('times new roman', 17))
+    EmerContactLabel.grid(row=6,column=0,sticky=W,padx=20,pady=20)
+    EmerContactEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    EmerContactEntry.grid(row=6,column=1,sticky=W,padx=20,pady=20)
+
+    EmernumLabel=Label(updatestudentwindow, text='Emergency #', font=('times new roman', 17))
+    EmernumLabel.grid(row=7,column=0,sticky=W,padx=20,pady=20)
+    EmernumEntry=Entry(updatestudentwindow, bd=7, font=('times new roman',17))
+    EmernumEntry.grid(row=7,column=1,sticky=W,padx=20,pady=20)
+
+    indexing=studentTable.focus()
+    content=studentTable.item(indexing)
+    updatedata=content['values']
+    studentidEntry.insert(0,updatedata[0])
+    studentnameEntry.insert(0,updatedata[1])
+    studentPhoneEntry.insert(0, updatedata[2])
+    studentEmailEntry.insert(0, updatedata[3])
+    sGenderEntry.insert(0, updatedata[4])
+    studentDoBEntry.insert(0, updatedata[5])
+    EmerContactEntry.insert(0, updatedata[6])
+    EmernumEntry.insert(0, updatedata[7])
 
 def add_student():
 
@@ -105,6 +179,59 @@ def add_student():
     add_studentButton=ttk.Button(addstudentwindow, text='Add Student', command=add_input)
     add_studentButton.grid(rowspan=8,columnspan=2, pady=15)
 
+def add_event():
+    def create_event():
+        if addEventEntry.get() == '' or eDateEntry.get() == '' or eTimeEntry.get() == '' or eLocationEntry.get() == '':
+            messagebox.showerror('Error', 'All fields Required', parent=addeventwindow)
+
+        else:
+            query='insert into events values(%s,%s,%s,%s)'
+            mycursor.execute(query,(addEventEntry.get(),eDateEntry.get(),eTimeEntry.get(),eLocationEntry.get()))
+            con.commit()
+            result=messagebox.askyesno('Confirm','Event Created. Do you want to reset form?', parent=addeventwindow)
+            if result:
+                addEventEntry.delete(0, END)
+                eDateEntry.delete(0, END)
+                eTimeEntry.delete(0, END)
+                eLocationEntry.delete(0, END)
+            else:
+                pass
+
+            query='select *from events'
+            mycursor.execute(query)
+            fetch_data=mycursor.fetchall()
+            calen.delete(*calen.get_children())
+            for data in fetch_data:
+                datalist=list(data)
+                calen.insert('',END,values=datalist)
+
+    addeventwindow=Toplevel()
+    addeventwindow.grab_set()
+    addeventwindow.resizable(False,False)
+
+    addeventLabel=Label(addeventwindow, text='Event', font=('times new roman',20,'bold'))
+    addeventLabel.grid(row=0,column=0,padx=30, pady=15)
+    addEventEntry=Entry(addeventwindow,width=35,font=('times new roman',15,'bold'))
+    addEventEntry.grid(row=0,column=1, pady=15, padx=10)
+
+    eDateLabel=Label(addeventwindow, text='Date', font=('times new roman',20,'bold'))
+    eDateLabel.grid(row=1,column=0,padx=30, pady=15)
+    eDateEntry=Entry(addeventwindow, font=('times new roman',15,'bold'))
+    eDateEntry.grid(row=1,column=1, pady=15, padx=1)
+
+    eTimeLabel=Label(addeventwindow, text='Time', font=('times new roman',20,'bold'))
+    eTimeLabel.grid(row=2,column=0,padx=30, pady=15)
+    eTimeEntry=Entry(addeventwindow,font=('times new roman',15,'bold'))
+    eTimeEntry.grid(row=2,column=1, pady=15, padx=10)
+
+    eLocationLabel=Label(addeventwindow, text='Location', font=('times new roman',20,'bold'))
+    eLocationLabel.grid(row=3,column=0,padx=30, pady=15)
+    eLocationEntry=Entry(addeventwindow,width=35,font=('times new roman',15,'bold'))
+    eLocationEntry.grid(row=3,column=1, pady=15, padx=10)
+
+    addevent_button =ttk.Button(addeventwindow, text='Create Event', command=create_event)
+    addevent_button.grid(row=4,columnspan=2, pady=15)
+
 def searchstudent():
     def search_input():
         q = 'select * from students where id=%s or name=%s'
@@ -130,38 +257,47 @@ def searchstudent():
     studentnameEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
     studentnameEntry.grid(row=1, column=1, sticky=W, padx=20, pady=20)
 
-    #studentPhoneLabel = Label(searchstudentwindow, text='Mobile', font=('times new roman', 17))
-    #studentPhoneLabel.grid(row=2, column=0, sticky=W, padx=20, pady=20)
-    #studentPhoneEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
-    #studentPhoneEntry.grid(row=2, column=1, sticky=W, padx=20, pady=20)
-
-    #studentEmailLabel = Label(searchstudentwindow, text='Email', font=('times new roman', 17))
-    #studentEmailLabel.grid(row=3, column=0, sticky=W, padx=20, pady=20)
-    #studentEmailEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
-    #studentEmailEntry.grid(row=3, column=1, sticky=W, padx=20, pady=20)
-
-    #sGenderLabel = Label(searchstudentwindow, text='Gender', font=('times new roman', 17))
-    #sGenderLabel.grid(row=4, column=0, sticky=W, padx=20, pady=20)
-    #sGenderEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
-    #sGenderEntry.grid(row=4, column=1, sticky=W, padx=20, pady=20)
-
-    #studentDoBLabel = Label(searchstudentwindow, text='DOB', font=('times new roman', 17))
-    #studentDoBLabel.grid(row=5, column=0, sticky=W, padx=20, pady=20)
-    #studentDoBEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
-    #studentDoBEntry.grid(row=5, column=1, sticky=W, padx=20, pady=20)
-
-    #EmerContactLabel = Label(searchstudentwindow, text='Emergency Contact', font=('times new roman', 17))
-    #EmerContactLabel.grid(row=6, column=0, sticky=W, padx=20, pady=20)
-    #EmerContactEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
-    #EmerContactEntry.grid(row=6, column=1, sticky=W, padx=20, pady=20)
-
-    #EmernumLabel = Label(searchstudentwindow, text='Emergency #', font=('times new roman', 17))
-    #EmernumLabel.grid(row=7, column=0, sticky=W, padx=20, pady=20)
-    #EmernumEntry = Entry(searchstudentwindow, bd=7, font=('times new roman', 17))
-    #EmernumEntry.grid(row=7, column=1, sticky=W, padx=20, pady=20)
-
     search_studentButton = ttk.Button(searchstudentwindow, text='Search Student', command=search_input)
     search_studentButton.grid(rowspan=8, columnspan=2, pady=15)
+
+def searchevent():
+    def search_data():
+        query='select *from events where event=%s or date=%s or time=%s or location=%s'
+        mycursor.execute(query, (searcheventEntry.get(), eDateEntry.get(), eTimeEntry.get, eLocationEntry.get))
+        calen.delete(*calen.get_children())
+        fetch_data=mycursor.fetchall()
+        for data in fetch_data:
+            calen.insert('',END,values=data)
+
+
+    searcheventwindow = Toplevel()
+    searcheventwindow.title('Search for Event')
+    searcheventwindow.resizable(False, False)
+    searcheventwindow.grab_set()
+
+    searcheventLabel=Label(searcheventwindow, text='Event', font=('times new roman',20,'bold'))
+    searcheventLabel.grid(row=0,column=0,padx=30, pady=15)
+    searcheventEntry=Entry(searcheventwindow,width=35,font=('times new roman',15,'bold'))
+    searcheventEntry.grid(row=0,column=1, pady=15, padx=10)
+
+    eDateLabel=Label(searcheventwindow, text='Date', font=('times new roman',20,'bold'))
+    eDateLabel.grid(row=1,column=0,padx=30, pady=15)
+    eDateEntry=Entry(searcheventwindow, font=('times new roman',15,'bold'))
+    eDateEntry.grid(row=1,column=1, pady=15, padx=1)
+
+    eTimeLabel=Label(searcheventwindow, text='Time', font=('times new roman',20,'bold'))
+    eTimeLabel.grid(row=2,column=0,padx=30, pady=15)
+    eTimeEntry=Entry(searcheventwindow,font=('times new roman',15,'bold'))
+    eTimeEntry.grid(row=2,column=1, pady=15, padx=10)
+
+    eLocationLabel=Label(searcheventwindow, text='Location', font=('times new roman',20,'bold'))
+    eLocationLabel.grid(row=3,column=0,padx=30, pady=15)
+    eLocationEntry=Entry(searcheventwindow,width=35,font=('times new roman',15,'bold'))
+    eLocationEntry.grid(row=3,column=1, pady=15, padx=10)
+
+    searchevent_button =ttk.Button(searcheventwindow, text='Search', command=search_data)
+    searchevent_button.grid(row=4,columnspan=2, pady=15)
+
 
 def deletestudent():
     indexing=studentTable.focus()
@@ -180,9 +316,26 @@ def deletestudent():
     for data in fetched:
         studentTable.insert('',END,value=data)
 
+def deleteevent():
+    indexing=calen.focus()
+    print(indexing)
+    content=calen.item(indexing)
+    content_id=content['values'][0]
+    query='delete from events where event=%s'
+    mycursor.execute(query, content_id)
+    con.commit()
+    messagebox.showinfo('Deleted','Event has been Deleted')
+    query='select *from events'
+    mycursor.execute(query)
+    fetched_data=mycursor.fetchall()
+    calen.delete(*calen.get_children())
+    for data in fetched_data:
+        calen.insert('', END, values=data)
+
+
 def updatestudent():
     def update_input():
-        q='update students set name=%s,mobile=%s,email=%s,gender=%s,dob=%s,emergency_contact=%s,emergency_number=%s'
+        q='update students set name=%s,mobile=%s,email=%s,gender=%s,dob=%s,emergency_contact=%s,emergency_number=%s where id=%s'
         conncursor.execute(q,(studentnameEntry.get(),studentPhoneEntry.get(),studentEmailEntry.get(),sGenderEntry.get(),
                               studentDoBEntry.get(),EmerContactEntry.get(),EmernumEntry.get()))
         conn.commit()
@@ -250,6 +403,8 @@ def updatestudent():
     EmerContactEntry.insert(0, updatedata[6])
     EmernumEntry.insert(0, updatedata[7])
 
+
+
 def connect_database():
     def connect():
         global conncursor, conn
@@ -265,15 +420,10 @@ def connect_database():
             conncursor.execute(query)
             query='use sms'
             conncursor.execute(query)
-            query="create table students(id int not null primary key, name varchar(30), mobile varchar(10)," \
-              " email varchar(30), gender varchar(10), dob varchar(20), emergency contact varchar(30)," \
-                  " emergency number varchar(10))"
-            conncursor.execute(query)
+
         except:
             query='use sms'
             conncursor.execute(query)
-
-
 
     connectdbWindow = Toplevel()
     connectdbWindow.grab_set()
@@ -299,6 +449,56 @@ def connect_database():
     connectButton = ttk.Button(connectdbWindow, text='CONNECT', command=connect)
     connectButton.grid(row=3, columnspan=2)
 
+def connect_eventdb():
+    def eventconnect():
+        global mycursor, con
+        try:
+            con=pymysql.connect(host='localhost', user='root', password='1234!?')
+            mycursor = con.cursor()
+            messagebox.showinfo('Success', 'Connect to Calendar', parent=eventdbWindow)
+        except:
+            messagebox.showerror('Error', 'Credentials are Invalid', parent=eventdbWindow)
+        try:
+            query='create database eventcal'
+            mycursor.execute(query)
+            query='use eventcal'
+            mycursor.execute(query)
+            query='create table events(event varchar(100) not null, date varchar(10), time varchar(10), location varchar(50))'
+            mycursor.execute(query)
+        except:
+            query='use eventcal'
+            mycursor.execute(query)
+        messagebox.showinfo('Success', 'Connect to Calendar', parent=eventdbWindow)
+        eventdbWindow.destroy()
+        addeventButton.config(state=NORMAL)
+        searcheventButton.config(state=NORMAL)
+        deleteeventButton.config(state=NORMAL)
+        displayCalButton.config(state=NORMAL)
+
+    eventdbWindow=Toplevel()
+    eventdbWindow.grab_set()
+    eventdbWindow.geometry('400x225+700+200')
+    eventdbWindow.title('Calendar Connection')
+    eventdbWindow.resizable(0, 0)
+
+    hostnameLabel = Label(eventdbWindow, text='Host Name', font=('times new roman', 15, 'bold'))
+    hostnameLabel.grid(row=0, column=0, padx=20)
+    hostEntry = Entry(eventdbWindow, font=('time new roman', 10, 'bold'), bd=2)
+    hostEntry.grid(row=0, column=1, padx=30, pady=20)
+
+    usernameLabel = Label(eventdbWindow, text='Username', font=('times new roman', 15, 'bold'))
+    usernameLabel.grid(row=1, column=0, padx=20)
+    usernameEntry = Entry(eventdbWindow, font=('time new roman', 10, 'bold'), bd=2)
+    usernameEntry.grid(row=1, column=1, padx=30, pady=20)
+
+    pwLabel = Label(eventdbWindow, text='Password', font=('times new roman', 15, 'bold'))
+    pwLabel.grid(row=2, column=0, padx=20)
+    pwEntry = Entry(eventdbWindow, font=('time new roman', 10, 'bold'), bd=2)
+    pwEntry.grid(row=2, column=1, padx=30, pady=20)
+
+    eventconnectButton = ttk.Button(eventdbWindow, text='CONNECT', command=eventconnect)
+    eventconnectButton.grid(row=3, columnspan=2)
+
 
 #GUI
 root=ttkthemes.ThemedTk()
@@ -320,36 +520,24 @@ s = "S.M.S"
 sliderLabel = Label(root, text=s, font=('times new roman', 35, 'bold'))
 sliderLabel.place(x=200, y=5)
 
+##Student DB Buttons##
+addstudentButton=ttk.Button(root, text=' Add Student', command=add_student)
+addstudentButton.place(x=455, y=80)
 
+updateStudentButton=ttk.Button(root, text='Update Student', command=updatestudent)
+updateStudentButton.place(x=620, y=80)
 
-#Student Info Frame
-#leftupperFrame = Frame(root, highlightbackground='green', highlightthickness=2, relief=GROOVE)
-#leftupperFrame.place(x=20, y=80, width=435, height=360)
+deletestudentButton=ttk.Button(root, text='Delete Student', command=deletestudent)
+deletestudentButton.place(x=785, y=80)
 
+searchStudentButton=ttk.Button(root, text='Search Student', command=searchstudent)
+searchStudentButton.place(x=960, y=80)
 
+displayStudentButton=ttk.Button(root, text='Display Student', command=displaystudent)
+displayStudentButton.place(x=1140, y=80)
 
-#Buttons Frame
-
-leftcenterFrame = Frame(root,highlightbackground='green', highlightthickness=2, relief=GROOVE)
-leftcenterFrame.place(x=455, y=80, width=900, height=60)
-
-addstudentButton=ttk.Button(leftcenterFrame, text=' Add Student', command=add_student)
-addstudentButton.grid(row=1,column=0,padx=25)
-
-updateStudentButton=ttk.Button(leftcenterFrame, text='Update Student', command=updatestudent)
-updateStudentButton.grid(row=1,column=3, padx=25)
-
-deletestudentButton=ttk.Button(leftcenterFrame, text='Delete Student', command=deletestudent)
-deletestudentButton.grid(row=1,column=5, padx=25)
-
-searchStudentButton=ttk.Button(leftcenterFrame, text='Search Student', command=searchstudent)
-searchStudentButton.grid(row=1,column=2, padx=25)
-
-displayStudentButton=ttk.Button(leftcenterFrame, text='Display Student', command=displaystudent)
-displayStudentButton.grid(row=1,column=4, padx=25)
-
-exportStudentButton=ttk.Button(leftcenterFrame, text='Export')
-exportStudentButton.grid(row=1,column=6,pady=15, padx=25)
+exportStudentButton=ttk.Button(root, text='Export')
+exportStudentButton.place(x=1320, y=80)
 
 
 #Calendar
@@ -367,23 +555,63 @@ cal = Calendar(leftlowerFrame, selectmode="day", date_pattern='dd-mm-yyyy', font
 cal.grid(row=0, column=0)
 
 cal.pack(fill=BOTH, expand=1)
+
 #Events Frame
 caleventFrame = Frame(root,highlightbackground='green', highlightthickness=2, relief=GROOVE)
-caleventFrame.place(x=20, y=420, width=400, height=413)
+caleventFrame.place(x=20, y=460, width=900, height=380)
 
+addeventButton=ttk.Button(root, text='Add Event',state=DISABLED, command=add_event)
+addeventButton.place(x=30, y=420)
+
+searcheventButton=ttk.Button(root, text='Search Events', state=DISABLED, command=searchevent)
+searcheventButton.place(x=150, y=420)
+
+deleteeventButton=ttk.Button(root, text='Delete Event', state=DISABLED, command=deleteevent)
+deleteeventButton.place(x=280, y=420)
+
+eventdbButton = ttk.Button(root, text='Connect to Calendar', command=connect_eventdb)
+eventdbButton.place(x=780, y=420)
+
+displayCalButton=ttk.Button(root, text='View Calendar', state=DISABLED, command=displayevents)
+displayCalButton.place(x=400, y=420)
+
+##Event Display Frame##
+scrollBarX=Scrollbar(caleventFrame, orient=HORIZONTAL)
+scrollBarY=Scrollbar(caleventFrame, orient=VERTICAL)
+
+calen = ttk.Treeview(caleventFrame, columns=('Event', 'Date', 'Time', 'Location'),
+                     xscrollcommand=scrollBarX.set, yscrollcommand=scrollBarY.set)
+
+scrollBarX.config(command=calen.xview)
+scrollBarY.config(command=calen.yview)
+
+scrollBarX.pack(side=BOTTOM, fill=X)
+scrollBarY.pack(side=RIGHT, fill=Y)
+
+calen.pack(fill=BOTH, expand=1)
+
+calen.heading('Event',text='Event')
+calen.heading('Date', text='Date')
+calen.heading('Time', text='Time')
+calen.heading('Location', text='Location')
+
+calen.config(show='headings')
 #Database Frame
 
 centerupperFrame = Frame(root, highlightbackground='green', highlightthickness=2, relief=GROOVE)
-centerupperFrame.place(x=435, y=150, width=950, height=260)
+centerupperFrame.place(x=435, y=115, width=950, height=295)
 
 scrollBarX=Scrollbar(centerupperFrame, orient=HORIZONTAL)
 scrollBarY=Scrollbar(centerupperFrame, orient=VERTICAL)
 
-#Search Frame in DB Frame
+#Dis/Con Frame in DB Frame
 
-searchFrame=ttk.Frame(centerupperFrame, relief=tkinter.GROOVE)
+displayButton=ttk.Button(centerupperFrame, text='Display Database', command=displaydatabase)
+displayButton.pack(side=tkinter.TOP, anchor=W)
+
+
 databaseButton=ttk.Button(centerupperFrame, text='Connect to Database', command=connect_database)
-databaseButton.pack(side=tkinter.TOP, anchor=NE)
+databaseButton.pack(side=tkinter.TOP, anchor=E)
 
 #Database Frame
 
@@ -410,6 +638,8 @@ studentTable.config(show='headings')
 
 studentTable.column('ID',anchor=CENTER)
 
+
+
 def new_file():
     my_text.delete('1.0', END)
     status_bar.config(text='New File       ')
@@ -421,10 +651,10 @@ def open_file():
     status_bar.config(text=name)
 #Create Notes Frame
 notesFrame = Frame(root, highlightbackground='green', highlightthickness=2, relief=GROOVE)
-notesFrame.place(x=430, y=460, width=425, height=374)
+notesFrame.place(x=960, y=460, width=425, height=374)
 n = "NOTES:"
 sliderLabel = Label(root, text=n, font=('times new roman', 25, 'bold'))
-sliderLabel.place(x=430, y=415)
+sliderLabel.place(x=960, y=415)
 
 #Scollbar
 text_scroll = Scrollbar(notesFrame)
@@ -460,6 +690,13 @@ edit_menu.add_command(label='Redo')
 status_bar = Label(root, text='Ready       ', anchor=W)
 status_bar.pack(fill=X, side=BOTTOM, ipady=5)
 
+#Gradebook
+
+#GradeDBFrame = Frame(root, highlightbackground='green', highlightthickness=2, relief=GROOVE)
+#GradeDBFrame.place(x=950, y=460, width=425, height=374)
+#n = "GRADEBOOK:"
+#sliderLabel = Label(root, text=n, font=('times new roman', 25, 'bold'))
+#sliderLabel.place(x=880, y=415)
 
 
 root.mainloop()
